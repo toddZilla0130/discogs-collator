@@ -19,4 +19,5 @@ where:
 Once `output-file` is written open it, add new collations as necessary then save **as .csv**. This file becomes `source-file.csv` for the next iteration.
 
 ### notes:
-A "default" for the artist collation in `output-file` (i.e., copy over the **artist** column) doesn't seem like a good idea because it makes it hard to find new lines, right? If there's a better way (like adding a "new" column?) I'll consider it.
+- A "default" for the artist collation in `output-file` (i.e., copy over the **artist** column) doesn't seem like a good idea because it makes it hard to find new lines, right? If there's a better way (like adding a "new" column?) I'll consider it.
+- It is up to the user to provide correct files for source & target. (Duh.)
