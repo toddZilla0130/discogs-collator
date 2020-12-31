@@ -35,21 +35,24 @@ end
 
 SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
+OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
 
 the_artists = Hash.new
 
-# need to read the first line (col headers) of the CSV as plain text for the output
 the_source = CSV.parse(File.read(SOURCE_FILE), headers: true)
 the_source.each do |the_entry|
     artist = the_entry['Artist']
     the_artists[the_entry['Artist']] = the_entry['CollatedArtist']
 end
 
+# need to read the first line (col headers) of the CSV as plain text for the output
+headers = File.open(SOURCE_FILE, &:gets)
 
 the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
 the_target.each do |the_entry|
-    puts the_entry
     artist = the_entry['Artist']
     collated_artist = the_artists[artist]
-    puts "#{artist} -> #{collated_artist}"
+    # build output line:
+    
+#    puts "#{artist} -> #{collated_artist}"
 end
