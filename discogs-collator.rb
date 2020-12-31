@@ -17,3 +17,8 @@ require 'csv'
 
 3.  classes:
 =end
+
+=begin
+more crap:
+    when reading in source file, take care of "the." Not sure how, but do it.
+=end
