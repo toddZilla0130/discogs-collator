@@ -32,6 +32,7 @@ def fix_start(chk_artist)
     return chk_artist
 end
 
+#############################################################
 class Source
     attr_reader :header
     def initialize(source_file)
@@ -57,14 +58,22 @@ class Source
 
 end # class Source
 
+#############################################################
 class Target_entry
     def initialize(target_entry, artist_hash)
         @target_entry = target_entry
-        collated_artist = artist_hash[@target_entry['Artist']] # i think
+        @artist_hash = artist_hash
+    end
 
+    def add_collated
+        collated_artist = @artist_hash.collated_artist(@target_entry['Artist'])
+        # Need to splice collated_artist into @target_entry, which is a CSV::Row. 
+        # Is it possible to add something to the middle of it? Seems to be a prety rich class
+        # so try finding the right method(s) before stringizing and splicing in that way.
     end
 end # class Target_line
 
+#############################################################
 class Target
     def initialize(target_file, artist_hash)
         @target = CSV.parse(File.read(target_file), headers: true)
@@ -104,13 +113,13 @@ OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
 =end
 
 artist_hash = Source.new SOURCE_FILE
-my_target = Target.new(TARGET_FILE, my_source)
+my_target = Target.new(TARGET_FILE, artist_hash)
 
-the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
-the_target.each do |the_entry|
-    artist = the_entry['Artist']
-    collated_artist = artist_hash.collated_artist artist
-    # build output line:
+# the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
+# the_target.each do |the_entry|
+#     artist = the_entry['Artist']
+#     collated_artist = artist_hash.collated_artist artist
+#     # build output line:
     
-#    puts "#{artist} -> #{collated_artist}"
-end
+# #    puts "#{artist} -> #{collated_artist}"
+# end
