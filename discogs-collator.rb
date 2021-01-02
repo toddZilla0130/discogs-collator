@@ -57,25 +57,26 @@ class Source
 
 end # class Source
 
-class Target_line
-    def initialize(target_
-        
+class Target_entry
+    def initialize(target_entry, artist_hash)
+        @target_entry = target_entry
+        collated_artist = artist_hash[@target_entry['Artist']] # i think
 
     end
 end # class Target_line
 
 class Target
-    def initialize(target_file, source_artists)
+    def initialize(target_file, artist_hash)
         @target = CSV.parse(File.read(target_file), headers: true)
-        @source_artists = source_artists
+        @artist_hash = artist_hash
+        read_target ## and do what exactly?
     end
 
     private # ----------------------------
 
     def read_target
         @target.each do |target_thingy|
-            # instantiate Target_line with target_thingy, possibly @source_artists? (if yes, then prob only need source crap in that class)
-            # a method call to the instance of Target_line will returns the **OUTPUT** line **AS TEXT**, with collated artist spliced in.
+            output_line = Target_entry.new(target_thingy, @artist_hash).add_collated # this will be a TEXT line, not a CSV array thing!
         end
     end
 
@@ -102,13 +103,13 @@ OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
     end
 =end
 
-my_source = Source.new SOURCE_FILE
+artist_hash = Source.new SOURCE_FILE
 my_target = Target.new(TARGET_FILE, my_source)
 
 the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
 the_target.each do |the_entry|
     artist = the_entry['Artist']
-    collated_artist = my_source.collated_artist artist
+    collated_artist = artist_hash.collated_artist artist
     # build output line:
     
 #    puts "#{artist} -> #{collated_artist}"
