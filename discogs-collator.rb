@@ -32,27 +32,61 @@ def fix_start(chk_artist)
     return chk_artist
 end
 
+class Source
+    def initialize(source_file)
+        @artists = Hash.new
+        @source = source_file
+        extract_artists
+        #$stderr.puts @artists
+    end
+
+    def collated_artist(artist)
+        @artists[artist] # will return the collated artist or nul
+    end
+
+    private # --------------------
+    
+    def extract_artists
+        csv_source = CSV.parse(File.read(@source), headers: true)
+        csv_source.each do |csv_line|
+            artist = csv_line['Artist']
+#            $stderr.puts "!! #{artist} -> #{csv_line['CollatedArtist']}"
+            @artists[artist] = csv_line['CollatedArtist']
+        end
+#        $stderr.puts @artists
+    end
+
+end # class Source_file
 
 SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
 OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
 
-the_artists = Hash.new
 
-the_source = CSV.parse(File.read(SOURCE_FILE), headers: true)
-the_source.each do |the_entry|
-    artist = the_entry['Artist']
-    the_artists[the_entry['Artist']] = the_entry['CollatedArtist']
-end
 
-# need to read the first line (col headers) of the CSV as plain text for the output
-headers = File.open(SOURCE_FILE, &:gets)
+# need to read the first line (col headers) of the **SOURCE** CSV as plain text for the output
+headers = File.open(SOURCE_FILE, &:gets) # found this one-liner trick on SO
+
+# maybe make the target_file line a class? 
+
+=begin
+    open target file for *reading* ## AS CSV OR PLAIN TEXT?
+    open output file for *writing*
+    write headers to output file
+    for each line in target
+        collated_artist =  the_artists[target_line['Artist']] # will return NULL if no match
+        output_line = splice collated_artist+',' after artist in target line
+        append output_line to output_file
+    end
+=end
+
+my_source = Source.new SOURCE_FILE
 
 the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
 the_target.each do |the_entry|
     artist = the_entry['Artist']
-    collated_artist = the_artists[artist]
+    collated_artist = my_source.collated_artist artist
     # build output line:
     
-#    puts "#{artist} -> #{collated_artist}"
+    puts "#{artist} -> #{collated_artist}"
 end
