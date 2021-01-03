@@ -100,15 +100,4 @@ SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collect
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
 OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
 
-=begin
-    open target file for *reading* ## AS CSV OR PLAIN TEXT?
-    open output file for *writing*
-    write headers to output file
-    for each line in target
-        collated_artist =  the_artists[target_line['Artist']] # will return NULL if no match
-        output_line = splice collated_artist+',' after artist in target line
-        append output_line to output_file
-    end
-=end
-
 my_target = Target.new(TARGET_FILE, SOURCE_FILE)
