@@ -5,11 +5,9 @@ require 'csv'
 =begin
 1.  validate command line args:
     if 2 args, source = arg[0]; target = arg[1]
-    if 3rd arg, output = arg[2]
-    if not 3rd arg, output = arg[2]-collated.csv (figure it out)
+    output = arg[2]-collated.csv (figure it out)
     if < 2 args, print usage and bail.
     source & target must exist, or print usage & bail.
-    for now, blithely overwrite ouput if it exists. may prompt in a future iteration
 2.  flow:
     open both files
     read source into a class that makes it easy to query "artist" and "collating artist" fields.
@@ -67,6 +65,7 @@ class Target_entry
 
     def add_collated
         collated_artist = @artist_hash.collated_artist(@target_entry['Artist'])
+        $stderr.puts "#{@target_entry['Artist']} -> #{collated_artist}"
         # Need to splice collated_artist into @target_entry, which is a CSV::Row. 
         # Is it possible to add something to the middle of it? Seems to be a prety rich class
         # so try finding the right method(s) before stringizing and splicing in that way.
@@ -75,9 +74,9 @@ end # class Target_line
 
 #############################################################
 class Target
-    def initialize(target_file, artist_hash)
+    def initialize(target_file, source_file)
+        @@artist_hash = Source.new source_file
         @target = CSV.parse(File.read(target_file), headers: true)
-        @artist_hash = artist_hash
         read_target ## and do what exactly?
     end
 
@@ -85,21 +84,15 @@ class Target
 
     def read_target
         @target.each do |target_thingy|
-            output_line = Target_entry.new(target_thingy, @artist_hash).add_collated # this will be a TEXT line, not a CSV array thing!
+            output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a TEXT line, not a CSV array thing!
         end
     end
-
-
-
 
 end # class
 
 SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
 OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
-
-
-
 
 =begin
     open target file for *reading* ## AS CSV OR PLAIN TEXT?
@@ -112,14 +105,4 @@ OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
     end
 =end
 
-artist_hash = Source.new SOURCE_FILE
-my_target = Target.new(TARGET_FILE, artist_hash)
-
-# the_target = CSV.parse(File.read(TARGET_FILE), headers: true)
-# the_target.each do |the_entry|
-#     artist = the_entry['Artist']
-#     collated_artist = artist_hash.collated_artist artist
-#     # build output line:
-    
-# #    puts "#{artist} -> #{collated_artist}"
-# end
+my_target = Target.new(TARGET_FILE, SOURCE_FILE)
