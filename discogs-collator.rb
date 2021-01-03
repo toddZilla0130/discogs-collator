@@ -30,6 +30,9 @@ def fix_start(chk_artist)
     return chk_artist
 end
 
+COLLATED_ARTIST = 'CollatedArtist'
+ARTIST = 'Artist'
+
 #############################################################
 class Source
     attr_reader :header
@@ -49,8 +52,8 @@ class Source
     def extract_artists
         csv_source = CSV.parse(File.read(@source), headers: true)
         csv_source.each do |csv_line|
-            artist = csv_line['Artist']
-            @artists[artist] = csv_line['CollatedArtist']
+            artist = csv_line[ARTIST]
+            @artists[artist] = csv_line[COLLATED_ARTIST]
         end
     end
 
@@ -64,11 +67,13 @@ class Target_entry
     end
 
     def add_collated
-        collated_artist = @artist_hash.collated_artist(@target_entry['Artist'])
-        $stderr.puts "#{@target_entry['Artist']} -> #{collated_artist}"
-        # Need to splice collated_artist into @target_entry, which is a CSV::Row. 
-        # Is it possible to add something to the middle of it? Seems to be a prety rich class
-        # so try finding the right method(s) before stringizing and splicing in that way.
+        collated_artist = @artist_hash.collated_artist(@target_entry[ARTIST])
+        artist_index = @target_entry.index(ARTIST)
+        # add CollatedArtist header before array value with the 'Artist' value
+        headers = @target_entry.headers.insert(artist_index+1, COLLATED_ARTIST)
+        # ditto above but inserting the value
+        fields = @target_entry.fields.insert(artist_index+1, collated_artist)
+        CSV::Row.new(headers, fields).to_csv # return this thing
     end
 end # class Target_line
 
@@ -85,6 +90,7 @@ class Target
     def read_target
         @target.each do |target_thingy|
             output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a TEXT line, not a CSV array thing!
+            $stderr.puts output_line
         end
     end
 
