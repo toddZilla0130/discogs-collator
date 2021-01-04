@@ -94,11 +94,22 @@ class Target
 
 end # class Target
 
-SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
-TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
-OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
+# SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
+# TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
 
-# something something command line args: 
-# ...
+if ARGV.count < 2
+    $stderr.puts "Usage: ruby discogs-collator.rb source.csv target.csv"
+    $stderr.puts "Where: source.csv is the previous iteration with collated artists"
+    $stderr.puts "       target.csv is the newly-exported file from discogs.com"
+    $stderr.puts "Both source.csv and target.csv must be fully qualified if not in cwd. Minimal error checking is done currently."
+    $stderr.puts "Output will be written to target-collated.csv in the same dir as target.csv"
+    $stderr.puts "Fill in new collated artists and save as .CSV. This becomes source.csv for the next iteration."
+    return 1
+end
 
-my_target = Target.new(TARGET_FILE, SOURCE_FILE)
+source_file = ARGV[0]
+target_file = ARGV[1]
+
+my_target = Target.new(target_file, source_file)
+
+
