@@ -96,9 +96,6 @@ class Target
 
 end # class Target
 
-# SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
-# TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
-
 if ARGV.count < 2
     $stderr.puts "Usage: ruby discogs-collator.rb source.csv target.csv"
     $stderr.puts "Where: source.csv is the previous iteration with collated artists"
@@ -113,5 +110,3 @@ source_file = ARGV[0]
 target_file = ARGV[1]
 
 my_target = Target.new(target_file, source_file)
-
-
