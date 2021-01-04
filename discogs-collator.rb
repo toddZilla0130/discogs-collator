@@ -67,7 +67,8 @@ class Target
         output_csv = Array.new
         the_stuff = read_target
         output_csv << the_stuff
-        $stderr.puts output_csv
+        Output.new(target_file, output_csv)
+        #$stderr.puts output_csv
     end
 
     private # ----------------------------
@@ -93,6 +94,31 @@ class Target
     end
 
 end # class Target
+
+class Output
+    def initialize(target_file, csv_buff)
+        @fname = target_file
+        @csv_buff = csv_buff
+        write_it_already_sheesh
+    end
+
+    private #--------------------------------
+    def output_fn
+        File.dirname(@fname)+'/'+File.basename(@fname, File.extname(@fname))+'-collated'+File.extname(@fname)
+    end
+
+    def write_it_already_sheesh
+        CSV.open(output_fn, 'wb') do |csv_file|
+            puts @csv_buff.class
+            @csv_buff.each do |csv_line| 
+                puts csv_line.class
+                puts csv_line
+                csv_file << csv_line
+            end
+        end
+    end
+
+end # class Output
 
 # SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 # TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
