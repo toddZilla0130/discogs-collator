@@ -63,12 +63,9 @@ end # class Target_line
 class Target
     def initialize(target_file, source_file)
         @@artist_hash = Source.new source_file
+        @target_fn = target_file
         @target = CSV.parse(File.read(target_file), headers: true)
-        output_csv = Array.new
-        the_stuff = read_target
-        output_csv << the_stuff
-        Output.new(target_file, output_csv)
-        #$stderr.puts output_csv
+        read_target
     end
 
     private # ----------------------------
@@ -80,19 +77,17 @@ class Target
     end
 
     def output_fn
-        File.dirname(@target)+'/'+File.basename(@target, File.extname(@target))+'-collated'+File.extname(@target)
+        File.dirname(@target_fn)+'/'+File.basename(@target_fn, File.extname(@target_fn))+'-collated'+File.extname(@target_fn)
     end
 
-
     def read_target
-        buffer = Array.new
         header_read = false
-        CSV.open(output_fn, 'wb') do |csv_file|
+        File.open(output_fn, 'w') do |csv_file|
             @target.each do |target_thingy|
                 output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
                 if !header_read
-                    csv_file << csv_header(target_thingy)
-                    header_read = true
+                   csv_file << csv_header(target_thingy)
+                   header_read = true
                 end
                 csv_file << output_line
             end
@@ -100,31 +95,6 @@ class Target
     end
 
 end # class Target
-
-class Output
-    def initialize(target_file, csv_buff)
-        @fname = target_file
-        @csv_buff = csv_buff
-        write_it_already_sheesh
-    end
-
-    private #--------------------------------
-    def output_fn
-        File.dirname(@fname)+'/'+File.basename(@fname, File.extname(@fname))+'-collated'+File.extname(@fname)
-    end
-
-    def write_it_already_sheesh
-        CSV.open(output_fn, 'wb') do |csv_file|
-            puts @csv_buff.class
-            @csv_buff.each do |csv_line| 
-                puts csv_line.class
-                puts csv_line
-                csv_file << csv_line
-            end
-        end
-    end
-
-end # class Output
 
 # SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 # TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
