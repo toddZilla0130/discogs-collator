@@ -2,25 +2,7 @@
 
 require 'csv'
 
-=begin
-1.  validate command line args:
-    if 2 args, source = arg[0]; target = arg[1]
-    output = arg[2]-collated.csv (figure it out)
-    if < 2 args, print usage and bail.
-    source & target must exist, or print usage & bail.
-2.  flow:
-    open both files
-    read source into a class that makes it easy to query "artist" and "collating artist" fields.
-    for each line of target:
-
-3.  classes:
-=end
-
-=begin
-more crap:
-    when reading in source file, take care of "the." Not sure how, but do it.
-=end
-
+# (figure out if/how/whether this is worth doing)
 # Strips beginning "A, An, The". Better would be to move to end, but for this use case it's not necessary
 def fix_start(chk_artist)
     return chk_artist if chk_artist == "The The" # outlier
@@ -35,11 +17,11 @@ ARTIST = 'Artist'
 
 #############################################################
 class Source
-    attr_reader :header
+    attr_reader :header  ## NO!
     def initialize(source_file)
         @artists = Hash.new
         @source = source_file
-        @header = File.open(source_file, &:gets) # found this one-liner trick on SO - returns the first line. closes file
+#        @header = File.open(source_file, &:gets) # found this one-liner trick on SO - returns the first line. closes file
         extract_artists
     end
 
@@ -72,11 +54,14 @@ class Target_entry
         collated_artist_index = @target_entry.index(ARTIST)+1 # not really necessary to keep doing this over and over, but...
         # add CollatedArtist header after array value with the 'Artist' value
         headers = @target_entry.headers.insert(collated_artist_index, COLLATED_ARTIST)
+        $stderr.puts headers
         # ditto above but inserting the value
         fields = @target_entry.fields.insert(collated_artist_index, collated_artist)
         CSV::Row.new(headers, fields).to_csv # return this thing
     end
 end # class Target_line
+
+# CREATE NEW HEADER LINE FROM **TARGET** FILE. THAT WAY I CAN TRIM DOWN THE "SOURCE" FILE.
 
 #############################################################
 # consider renaming this class... it's pretty much the App at this point...
@@ -85,10 +70,10 @@ class Target
         @@artist_hash = Source.new source_file
         @target = CSV.parse(File.read(target_file), headers: true)
         output_csv = Array.new
-        output_csv << @@artist_hash.header ## oops
+        # output_csv << @@artist_hash.header ## oops
         the_stuff = read_target
         output_csv << the_stuff
-        puts output_csv
+        #puts output_csv
     end
 
     private # ----------------------------
@@ -107,5 +92,8 @@ end # class
 SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
 OUTPUT_FILE = '/Users/toddsteinwart/repos/discogs-collator/Glob.csv'
+
+# something something command line args: 
+# ...
 
 my_target = Target.new(TARGET_FILE, SOURCE_FILE)
