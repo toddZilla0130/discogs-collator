@@ -17,16 +17,14 @@ ARTIST = 'Artist'
 
 #############################################################
 class Source
-    attr_reader :header  ## NO!
     def initialize(source_file)
         @artists = Hash.new
         @source = source_file
-#        @header = File.open(source_file, &:gets) # found this one-liner trick on SO - returns the first line. closes file
         extract_artists
     end
 
     def collated_artist(artist)
-        @artists[artist] # will return the collated artist or nul
+        @artists[artist] # will return the collated artist or null
     end
 
     private # --------------------
@@ -38,7 +36,6 @@ class Source
             @artists[artist] = csv_line[COLLATED_ARTIST]
         end
     end
-
 end # class Source
 
 #############################################################
@@ -54,14 +51,12 @@ class Target_entry
         collated_artist_index = @target_entry.index(ARTIST)+1 # not really necessary to keep doing this over and over, but...
         # add CollatedArtist header after array value with the 'Artist' value
         headers = @target_entry.headers.insert(collated_artist_index, COLLATED_ARTIST)
-        $stderr.puts headers
         # ditto above but inserting the value
         fields = @target_entry.fields.insert(collated_artist_index, collated_artist)
         CSV::Row.new(headers, fields).to_csv # return this thing
     end
 end # class Target_line
 
-# CREATE NEW HEADER LINE FROM **TARGET** FILE. THAT WAY I CAN TRIM DOWN THE "SOURCE" FILE.
 
 #############################################################
 # consider renaming this class... it's pretty much the App at this point...
@@ -70,24 +65,34 @@ class Target
         @@artist_hash = Source.new source_file
         @target = CSV.parse(File.read(target_file), headers: true)
         output_csv = Array.new
-        # output_csv << @@artist_hash.header ## oops
         the_stuff = read_target
         output_csv << the_stuff
-        #puts output_csv
+        $stderr.puts output_csv
     end
 
     private # ----------------------------
 
+    def csv_header target_entry
+        collated_artist_index = target_entry.index(ARTIST)+1
+        headers = target_entry.headers.insert(collated_artist_index, COLLATED_ARTIST)
+        CSV::Row.new(headers, headers).to_csv # this seems a little weird but if I tried to return `headers` the output was borked
+    end
+
     def read_target
         buffer = Array.new
+        header_read = false
         @target.each do |target_thingy|
             output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
+            if !header_read
+                buffer << csv_header(target_thingy)
+                header_read = true
+            end
             buffer << output_line
         end
         buffer
     end
 
-end # class
+end # class Target
 
 SOURCE_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440-collated.csv'
 TARGET_FILE = '/Users/toddsteinwart/repos/discogs-collator/ToddZilla0130-collection-20201230-0440.csv'
