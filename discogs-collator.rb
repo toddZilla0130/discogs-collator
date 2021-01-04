@@ -79,18 +79,24 @@ class Target
         CSV::Row.new(headers, headers).to_csv # this seems a little weird but if I tried to return `headers` the output was borked
     end
 
+    def output_fn
+        File.dirname(@target)+'/'+File.basename(@target, File.extname(@target))+'-collated'+File.extname(@target)
+    end
+
+
     def read_target
         buffer = Array.new
         header_read = false
-        @target.each do |target_thingy|
-            output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
-            if !header_read
-                buffer << csv_header(target_thingy)
-                header_read = true
+        CSV.open(output_fn, 'wb') do |csv_file|
+            @target.each do |target_thingy|
+                output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
+                if !header_read
+                    csv_file << csv_header(target_thingy)
+                    header_read = true
+                end
+                csv_file << output_line
             end
-            buffer << output_line
         end
-        buffer
     end
 
 end # class Target
