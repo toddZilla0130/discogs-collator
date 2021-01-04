@@ -60,6 +60,7 @@ class Source
 end # class Source
 
 #############################################################
+# this class also desperately wants renaming.
 class Target_entry
     def initialize(target_entry, artist_hash)
         @target_entry = target_entry
@@ -68,16 +69,17 @@ class Target_entry
 
     def add_collated
         collated_artist = @artist_hash.collated_artist(@target_entry[ARTIST])
-        artist_index = @target_entry.index(ARTIST)
+        collated_artist_index = @target_entry.index(ARTIST)+1 # not really necessary to keep doing this over and over, but...
         # add CollatedArtist header before array value with the 'Artist' value
-        headers = @target_entry.headers.insert(artist_index+1, COLLATED_ARTIST)
+        headers = @target_entry.headers.insert(collated_artist_index, COLLATED_ARTIST)
         # ditto above but inserting the value
-        fields = @target_entry.fields.insert(artist_index+1, collated_artist)
+        fields = @target_entry.fields.insert(collated_artist_index, collated_artist)
         CSV::Row.new(headers, fields).to_csv # return this thing
     end
 end # class Target_line
 
 #############################################################
+# consider renaming this class... it's pretty much the App at this point...
 class Target
     def initialize(target_file, source_file)
         @@artist_hash = Source.new source_file
@@ -89,7 +91,7 @@ class Target
 
     def read_target
         @target.each do |target_thingy|
-            output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a TEXT line, not a CSV array thing!
+            output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
             $stderr.puts output_line
         end
     end
