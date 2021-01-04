@@ -70,7 +70,7 @@ class Target_entry
     def add_collated
         collated_artist = @artist_hash.collated_artist(@target_entry[ARTIST])
         collated_artist_index = @target_entry.index(ARTIST)+1 # not really necessary to keep doing this over and over, but...
-        # add CollatedArtist header before array value with the 'Artist' value
+        # add CollatedArtist header after array value with the 'Artist' value
         headers = @target_entry.headers.insert(collated_artist_index, COLLATED_ARTIST)
         # ditto above but inserting the value
         fields = @target_entry.fields.insert(collated_artist_index, collated_artist)
@@ -84,16 +84,22 @@ class Target
     def initialize(target_file, source_file)
         @@artist_hash = Source.new source_file
         @target = CSV.parse(File.read(target_file), headers: true)
-        read_target ## and do what exactly?
+        output_csv = Array.new
+        output_csv << @@artist_hash.header ## oops
+        the_stuff = read_target
+        output_csv << the_stuff
+        puts output_csv
     end
 
     private # ----------------------------
 
     def read_target
+        buffer = Array.new
         @target.each do |target_thingy|
             output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
-            $stderr.puts output_line
+            buffer << output_line
         end
+        buffer
     end
 
 end # class
