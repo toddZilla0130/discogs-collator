@@ -13,7 +13,7 @@ where:
 - `source-file.csv` is the _previous_ discogs export, run through this script and new artists updated.
 - `target-file.csv` is the newly-exported discogs file.
 
-`source-file.csv` and `target-file.csv` *must be fully qualified*.
+`source-file.csv` and `target-file.csv` must be findable.
 
 Output will be written to `target-file-collated.csv` where "-collated" is a literal insertion. 
 
