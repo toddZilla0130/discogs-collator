@@ -64,8 +64,7 @@ class Target
     def initialize(target_file, source_file)
         @@artist_hash = Source.new source_file
         @target_fn = target_file
-        @target = CSV.parse(File.read(target_file), headers: true)
-        read_target
+        read_target #rename - now also writes output
     end
 
     private # ----------------------------
@@ -81,14 +80,15 @@ class Target
     end
 
     def read_target
+        target_csv = CSV.parse(File.read(@target_fn), headers: true)
         header_read = false
         File.open(output_fn, 'w') do |csv_file|
-            @target.each do |target_thingy|
-                output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
+            target_csv.each do |target_thingy|
                 if !header_read
                    csv_file << csv_header(target_thingy)
                    header_read = true
                 end
+                output_line = Target_entry.new(target_thingy, @@artist_hash).add_collated # this will be a CSV TEXT line, not a CSV::Row object.
                 csv_file << output_line
             end
         end
@@ -96,13 +96,16 @@ class Target
 
 end # class Target
 
+  ########
+ # MAIN #
+########
 if ARGV.count < 2
     $stderr.puts "Usage: ruby discogs-collator.rb source.csv target.csv"
     $stderr.puts "Where: source.csv is the previous iteration with collated artists"
     $stderr.puts "       target.csv is the newly-exported file from discogs.com"
-    $stderr.puts "Both source.csv and target.csv must be fully qualified if not in cwd. Minimal error checking is done currently."
+    $stderr.puts "Both source.csv and target.csv must be findable. Minimal error checking is done currently."
     $stderr.puts "Output will be written to target-collated.csv in the same dir as target.csv"
-    $stderr.puts "Fill in new collated artists and save as .CSV. This becomes source.csv for the next iteration."
+    $stderr.puts "Fill in new collated artists and save as .csv. This becomes source.csv for the next iteration."
     return 1
 end
 
